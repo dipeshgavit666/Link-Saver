@@ -12,16 +12,43 @@ function App() {
 
   useEffect(() => {
     const fetchLinks = async () => {
-      const response = await fetch(`http://localhost:3000/api/link`);
+      const response = await fetch(`/api/link`);
       const data = await response.json();
       setLinks(data.links);
     };
     fetchLinks();
   }, []);
 
-  async function handleSubmit() {}
-  async function handleSearch() {}
-  async function handleDelete() {}
+  const handleSubmit = async() => {
+    const respose = await fetch(`/api/link`, 
+      {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(formData)
+      });
+      const createdLink = await respose.json();
+      setLinks([...links, createdLink]);
+      setFormData({
+        url: "",
+        title: "",
+        tag: "",
+      })
+  }
+  const handleDelete = async(id) => {
+    await fetch(`/api/link/${id}`,
+    {
+      method: 'DELETE',
+    });
+    setLinks(links.filter(link => link._id !== id))
+  }
+
+  const handleSearch = async(tag) => {
+    const response = await fetch(`/api/link?tag=${searchTag}`);
+    const data = await response.json();
+      setLinks(data.links);
+
+  }
+
 
   return (
     <>
@@ -34,7 +61,7 @@ function App() {
           value={searchTag}
           onChange={(e) => setSearchTag(e.target.value)}
         />
-        <button>Search</button>
+        <button onClick={handleSearch}>Search</button>
       </div>
 
       <div>
@@ -43,7 +70,7 @@ function App() {
             <div>{link.title}</div>
             <div>{link.url}</div>
             <div>{link.tag}</div>
-            <button>delete</button>
+            <button onClick={() => handleDelete(link._id)}>delete</button>
           </div>
         ))}
       </div>
@@ -74,7 +101,9 @@ function App() {
             value={formData.tag}
             onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
           />
-          <button>Save</button>
+          <button
+            onClick={handleSubmit}
+          >Save</button>
         </form>
       </div>
     </>
