@@ -9,6 +9,7 @@ function App() {
     title: "",
     tag: "",
   });
+  const [copiedId, setCopiedId] = useState(null)
 
   useEffect(() => {
     const fetchLinks = async () => {
@@ -49,32 +50,44 @@ function App() {
 
   }
 
+  const copyTextToClipboard = async (url, id) => {
+  try {
+    await navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  } catch (err) {
+    console.error('Failed to copy: ', err);
+  }
+}    
 
   return (
-    <>
-      <div>
+    <div className="app">
+      <div className="search-bar">
         <input
           type="text"
           name=""
           id="search"
-          placeholder="search link"
+          placeholder="search link by tag"
           value={searchTag}
           onChange={(e) => setSearchTag(e.target.value)}
         />
         <button onClick={handleSearch}>Search</button>
       </div>
 
-      <div>
+      <div className="links-grid">
         {links.map((link) => (
-          <div key={link._id}>
+          <div className="link-card" key={link._id}>
             <div>{link.title}</div>
             <div>{link.url}</div>
             <div>{link.tag}</div>
+              <button onClick={() => copyTextToClipboard(link.url, link._id)}>
+                {copiedId === link._id ? 'Copied!' : 'Copy'}
+              </button>
             <button onClick={() => handleDelete(link._id)}>delete</button>
           </div>
         ))}
       </div>
-      <div>
+      <div className="form-container">
         <form action="">
           <label htmlFor="url">url</label>
           <input
@@ -106,7 +119,7 @@ function App() {
           >Save</button>
         </form>
       </div>
-    </>
+    </div>
   );
 }
 
